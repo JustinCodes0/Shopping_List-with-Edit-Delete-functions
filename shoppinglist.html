@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Shopping List</title>
+  <style>
+    form {
+      border: dashed black 1px;
+      width: 200px;
+      padding: 20px;
+    }
+    .delete-button, .edit-button {
+      color: red;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    .edit-input {
+      margin-left: 10px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Example: Shopping List</h1>
+<div id="app">
+  <form v-on:submit.prevent="addItem">
+    <p>
+      What do you need?
+      <input type="text" required placeholder="item name.." v-model="itemName">
+    </p>
+    <p>
+      How many?
+      <input type="number" placeholder="number of items.." v-model="itemNumber">
+    </p>
+    <button type="submit">Add item</button>
+  </form>
+
+  <div>
+    <p>Shopping list:</p>
+    <ul>
+      <li v-for="(item, index) in shoppingList" :key="index">
+        <template v-if="editIndex === index">
+          <input class="edit-input" v-model="editItemName" placeholder="item name..">
+          <input class="edit-input" v-model="editItemNumber" type="number" placeholder="number of items..">
+          <button @click="saveEdit(index)">Save</button>
+          <button @click="cancelEdit">Cancel</button>
+        </template>
+        <template v-else>
+          {{ item.name }}, {{ item.number }}
+          <span class="edit-button" @click="startEdit(index, item.name, item.number)">✎</span>
+          <span class="delete-button" @click="deleteItem(index)">&#10006;</span>
+        </template>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+  const app = Vue.createApp({
+    data() {
+      return {
+        itemName: null,
+        itemNumber: null,
+        shoppingList: [
+          { name: 'Tomatoes', number: 5 }
+        ],
+        editIndex: null,
+        editItemName: '',
+        editItemNumber: ''
+      }
+    },
+    methods: {
+      addItem(){
+        if(this.itemName && this.itemNumber) {
+          let item = {
+            name: this.itemName,
+            number: this.itemNumber
+          }
+          this.shoppingList.push(item)
+          this.itemName = null
+          this.itemNumber = null  
+        }
+      },
+      deleteItem(index) {
+        this.shoppingList.splice(index, 1)
+      },
+      startEdit(index, name, number) {
+        this.editIndex = index
+        this.editItemName = name
+        this.editItemNumber = number
+      },
+      saveEdit(index) {
+        if (this.editItemName && this.editItemNumber) {
+          this.shoppingList[index] = {
+            name: this.editItemName,
+            number: this.editItemNumber
+          }
+          this.cancelEdit()
+        }
+      },
+      cancelEdit() {
+        this.editIndex = null
+        this.editItemName = ''
+        this.editItemNumber = ''
+      }
+    }
+  })
+  app.mount('#app')
+</script>
+
+</body>
+</html>
